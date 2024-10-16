@@ -1,10 +1,10 @@
 //user.controller.ts
-import { Controller, Get, Post, Delete, Body, Param, ParseIntPipe, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param, ParseIntPipe, Patch, UseGuards } from '@nestjs/common';
 import { CreateUserDto } from "./dto/create-user.dto"
 import { UpdateUserDto } from './dto/update-user.dto';
-import { AuthUserDto } from './dto/auth-user.dto';
 import { UserService } from "./user.service"
 import { User } from './user.entity';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 
 @Controller('user')
@@ -32,14 +32,10 @@ export class UserController {
         return this.userService.updateUser(id, user)
     }
 
+    @UseGuards(AuthGuard)
     @Delete(":id")
     deleteUser(@Param("id", ParseIntPipe) id: number){
         return this.userService.deleteUser(id)
-    }
-
-    @Post("/auth")
-    authUser(@Body() user: AuthUserDto){
-        return this.userService.authUser(user)
     }
 
 }

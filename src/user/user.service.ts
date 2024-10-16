@@ -10,8 +10,7 @@ import { User } from "./user.entity";
 import { Repository } from "typeorm";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { AuthUserDto } from "./dto/auth-user.dto";
-import { generateRandomPassword, hashPassword, comparePassword } from "src/utils/password.utils";
+import { generateRandomPassword, hashPassword } from "src/utils/password.utils";
 import { validateEmail } from "src/utils/email.validator";
 
 @Injectable()
@@ -54,7 +53,7 @@ export class UserService {
     });
     
     console.log(generatedPassword)
-    return this.userRepository.save(newUser);
+    return this.userRepository.save(newUser); 
   }
 
   async updateUser(id: number, user: UpdateUserDto) {
@@ -90,19 +89,5 @@ export class UserService {
     if (!userFound) throw new NotFoundException("The requested user was not found");
 
     return this.userRepository.delete({ id });
-  }
-
-  async authUser(user: AuthUserDto){
-    const userFound = await this.userRepository.findOne({
-        where: {
-            email: user.email
-        }
-    })
-
-    if(!userFound) throw new NotFoundException("The requested user was not found");
-
-    const result = await comparePassword(user.password, userFound.password)
-
-    return result;
   }
 }
