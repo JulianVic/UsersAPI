@@ -28,7 +28,7 @@ export class AuthService {
 
     const payload = {
         sub: userFound.id,
-        name: userFound.name
+        name: userFound.name,
     }
 
     const result = await comparePassword(user.password, userFound.password);

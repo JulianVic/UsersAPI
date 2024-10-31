@@ -52,8 +52,12 @@ export class UserService {
       password: hashedPassword,
     });
     
+    const savedUser = await this.userRepository.save(newUser)
+
+    delete savedUser.password
+
     console.log(generatedPassword)
-    return this.userRepository.save(newUser); 
+    return savedUser; 
   }
 
   async updateUser(id: number, user: UpdateUserDto) {
@@ -73,6 +77,10 @@ export class UserService {
       });
 
       if (isEmailAvailable) throw new ConflictException("Email is already registered.");
+    }
+
+    if(user.password){
+      user.password = await hashPassword(user.password)
     }
 
     const updatedUser = Object.assign(userFound, user);
