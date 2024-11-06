@@ -12,11 +12,13 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { generateRandomPassword, hashPassword } from "src/utils/password.utils";
 import { validateEmail } from "src/utils/email.validator";
+import { MailService } from "src/mail/mail.service";
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>
+    @InjectRepository(User) private userRepository: Repository<User>,
+    private mailService: MailService
   ) {}
 
   getUsers() {
@@ -42,7 +44,9 @@ export class UserService {
       where: { email: user.email },
     });
 
-    if (isEmailAvailable) throw new ConflictException("Email is already registered.");
+    console.log(isEmailAvailable)
+
+    if (isEmailAvailable !== null) throw new ConflictException("Email is already registered.");
 
     const generatedPassword = generateRandomPassword(12);
     const hashedPassword = await hashPassword(generatedPassword);
@@ -53,6 +57,9 @@ export class UserService {
     });
     
     const savedUser = await this.userRepository.save(newUser)
+
+    // Envía el email de bienvenida
+    await this.mailService.sendUserWelcome(savedUser, generatedPassword);
 
     delete savedUser.password
 
